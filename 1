@@ -1,0 +1,283 @@
+//conversion
+org 100h
+
+mov ah, 0Ah
+mov dx, offset num
+int 21h
+                     
+       
+xor bx, bx
+mov bl, num[1]
+mov si, offset num + 1
+add si, bx
+
+mov bp, 0h
+mov dx, 0h
+
+CONV_ONES:
+    cmp bp, 4
+    je SET
+   
+    mov al, [si]
+    sub al, 30h
+    mov bl, pow[bp]
+    mul bl
+    inc bp
+    dec si
+   
+    add dl, al
+    jmp CONV_ONES
+   
+SET:
+    mov bp, 0
+   
+CONV_TENS:
+    cmp bp, 4
+    je END
+   
+    mov al, [si]
+    sub al, 30h
+    mov bl, pow[bp]
+    mul bl
+    inc bp
+    dec si
+   
+    mov bl, 10d
+    mul bl
+    add dl, al
+    jmp CONV_TENS
+     
+END:    
+
+ret
+
+num db 20, ?, 20 dup(' ')
+pow db 1, 2, 4, 8```
+
+------------------------------
+
+org 100h
+
+mov ah, 0Ah
+mov dx, offset str1
+int 21h
+
+xor cx, cx
+mov cl, str1[1]
+
+mov si, offset str1 + 2
+mov di, offset str2 + 2
+ 
+
+mov al, [si]
+mov [di], al
+   
+inc si
+inc di
+
+mov bx, si
+sub bx, 1                                      
+dec cx    
+
+CONV:
+    cmp cx, 0
+    je END
+   
+    mov al, [si]
+    sub al, 48d
+   
+    sub [bx], 48d
+    xor al, [bx]
+    mov [di], al
+    add [di], 48d
+   
+    inc si
+    inc bx
+    inc di
+   
+    dec cx
+    jmp CONV
+   
+END:
+    mov al, str1[1]
+    mov str2[1], al
+   
+    xor bx, bx
+    mov bl, str2[1]
+    mov str2[bx + 2], '$'
+   
+    mov ah, 09h
+    mov dx, offset str2 + 2
+    int 21h
+
+ret
+
+str1 db 20, ?, 20 dup(' ')
+str2 db 20, ?, 20 dup(' ')
+--------------------------------------
+//CA2
+
+org 100h
+     
+mov cx, 0
+
+TH:
+    mov ah, 01h
+    int 21h
+   
+    xor ah, ah
+    sub ax, 30h
+    mov bx, 1000d
+    mul bx
+    add cx, ax
+
+HUN:
+    mov ah, 01h
+    int 21h
+   
+    xor ah, ah
+    sub ax, 30h
+    mov bx, 100d
+    mul bx
+    add cx, ax
+
+TENS:
+    mov ah, 01h
+    int 21h
+   
+    xor ah, ah
+    sub ax, 30h
+    mov bx, 10d
+    mul bx
+    add cx, ax      
+     
+ONES:
+    mov ah, 01h
+    int 21h
+   
+    xor ah, ah
+    sub al, 30h
+    add cl, al
+   
+mov ax, cx
+mov bx, 7h
+div bx
+
+cmp dx, 0
+je SUC
+
+mov ah, 09h
+mov dx, offset msg2
+int 21h
+jmp END;
+
+SUC:
+    mov ah, 09h
+    mov dx, offset msg1
+    int 21h
+
+END:
+
+ret
+
+msg1 db "Divisible by 7$"
+msg2 db "Not divisible by 7$"
+
+--------------------------
+
+; You may customize this and other start-up templates;
+; The location of this template is c:\emu8086\inc\0_com_template.txt
+
+org 100h
+
+lea bx, nums
+mov cx, 5
+
+INP:
+    cmp cx, 0
+    je CONT
+   
+    dec cx
+    mov ah, 01h
+    int 21h
+   
+    mov [bx], al
+    inc bx
+   
+    jmp INP
+   
+CONT:
+    lea bx, nums
+   
+    mov al, [bx]
+    inc bx
+   
+    mov cx, 5
+   
+GRE:
+    cmp cx, 0
+    je END
+   
+    dec cx
+   
+    cmp [bx], al
+    jg UPD
+    inc bx
+    jmp GRE
+   
+UPD:
+    mov al, [bx]
+    jmp GRE
+   
+END:
+    ret
+
+
+nums db 10 dup(0)
+----------------
+
+org 100h
+
+mov ah, 0Ah
+mov dx, offset buffer1
+int 21h
+
+xor cx, cx
+mov cl, buffer1[1]
+
+add dx, 1
+add dx, cx
+mov si, dx
+mov di, offset buffer2 + 2
+
+MOVS:
+    cmp cx, 0
+    je END
+   
+    dec cx
+   
+    mov al, [si]
+    mov [di], al
+   
+    dec si
+    inc di
+   
+    jmp MOVS
+   
+END:
+    mov [di], '$'
+    mov ah, 09h
+    mov dx, offset buffer2 + 2
+    int 21h
+   
+
+
+ret
+
+buffer1 db 20, ?, 20 dup (' ')
+buffer2 db 20, ?, 20 dup (' ')
+
+
+
+
+-----------------
